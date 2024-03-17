@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_api_rest/pages/register_page.dart';
 import 'package:flutter_api_rest/utils/responsive.dart';
 import 'package:flutter_api_rest/widgets/input_text.dart';
 
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+class RegisterForm extends StatefulWidget {
+  const RegisterForm({super.key});
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  State<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _RegisterFormState extends State<RegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey();
-  String email = '';
-  String password = '';
+  String _email = '';
+  String _password = '';
+  String _username = '';
 
   _submit() {
     final bool isOk = _formKey.currentState!.validate();
@@ -36,12 +36,28 @@ class _LoginFormState extends State<LoginForm> {
           child: Column(
             children: [
               InputText(
+                label: 'USERNAME',
+                keyboardType: TextInputType.emailAddress,
+                obscureText: false,
+                fontSize: responsive.dp(responsive.isTablet ? 1.2 : 1.4),
+                onChanged: (text) {
+                  _username = text;
+                },
+                validator: (text) {
+                  if (text == null || text.trim().length < 5) {
+                    return "invalid usernme";
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: responsive.dp(2)),
+              InputText(
                 label: 'EMAIL ADDRESS',
                 keyboardType: TextInputType.emailAddress,
                 obscureText: false,
                 fontSize: responsive.dp(responsive.isTablet ? 1.2 : 1.4),
                 onChanged: (text) {
-                  email = text;
+                  _email = text;
                 },
                 validator: (text) {
                   if (text == null || !text.contains("@")) {
@@ -51,46 +67,20 @@ class _LoginFormState extends State<LoginForm> {
                 },
               ),
               SizedBox(height: responsive.dp(2)),
-              Container(
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.black12)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: InputText(
-                        label: 'PASSWORD',
-                        obscureText: true,
-                        borderEnable: false,
-                        fontSize:
-                            responsive.dp(responsive.isTablet ? 1.2 : 1.4),
-                        onChanged: (text) {
-                          password = text;
-                        },
-                        validator: (text) {
-                          if (text == null || text.trim().isEmpty) {
-                            return "Invalid password";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "Forgot Password",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize:
-                                responsive.dp(responsive.isTablet ? 1.2 : 1.4),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+              InputText(
+                label: 'PASSWORD',
+                keyboardType: TextInputType.emailAddress,
+                obscureText: false,
+                fontSize: responsive.dp(responsive.isTablet ? 1.2 : 1.4),
+                onChanged: (text) {
+                  _password = text;
+                },
+                validator: (text) {
+                  if (text == null || text.trim().length < 6) {
+                    return "invalid password";
+                  }
+                  return null;
+                },
               ),
               SizedBox(
                 height: responsive.dp(5),
@@ -100,13 +90,13 @@ class _LoginFormState extends State<LoginForm> {
                 child: FilledButton(
                     style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.pinkAccent),
+                      MaterialStateProperty.all<Color>(Colors.pinkAccent),
                     ),
                     onPressed: _submit,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       child: Text(
-                        'Sign in',
+                        'Sign up',
                         style: TextStyle(fontSize: responsive.dp(1.6)),
                       ),
                     )),
@@ -123,7 +113,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, RegisterPage.routeName);
+                      Navigator.pop(context);
                     },
                     child: Text(
                       'Sign up',

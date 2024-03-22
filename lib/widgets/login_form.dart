@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_api_rest/api/authentication_api.dart';
+import 'package:flutter_api_rest/models/user_credential_model.dart';
+import 'package:flutter_api_rest/data/authentication_client.dart';
+import 'package:flutter_api_rest/pages/home_page.dart';
 import 'package:flutter_api_rest/pages/register_page.dart';
+import 'package:flutter_api_rest/utils/dialogs.dart';
 import 'package:flutter_api_rest/utils/responsive.dart';
 import 'package:flutter_api_rest/widgets/input_text.dart';
+import 'package:get_it/get_it.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -12,13 +18,42 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey();
+  final _authenticationApi = GetIt.instance<AuthenticationApi>();
+  final _authenticationClient = GetIt.instance<AuthenticationClient>();
   String email = '';
   String password = '';
 
-  _submit() {
+  Future<void> _submit() async {
     final bool isOk = _formKey.currentState!.validate();
-    print('form isOk $isOk');
-    if (isOk) {}
+    if (isOk) {
+      ProgressDialog.show(context);
+
+      final response = await _authenticationApi.login(
+          userCredential:
+              UserCredentialModel(email: email, password: password));
+      ProgressDialog.dismiss(context);
+
+      if (response.data != null) {
+        await _authenticationClient.saveSession(response.data!);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          HomePage.routeName,
+          (_) => false,
+        );
+      } else {
+        String message = response.error!.message;
+
+        if (response.error!.statusCode == -1) {
+          message = 'Bad Network';
+        } else if (response.error!.statusCode == 403) {
+          message = 'Invalid password';
+        } else if (response.error!.statusCode == 404) {
+          message = 'User not found';
+        }
+
+        Dialogs.alert(context, title: 'Error', description: message);
+      }
+    }
   }
 
   @override
